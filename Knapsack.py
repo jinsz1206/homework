@@ -1,6 +1,9 @@
 import random
 import numpy as np
+from matplotlib import pyplot as plt
 
+plt.rcParams["font.sans-serif"]=["SimHei"] #设置字体
+plt.rcParams["axes.unicode_minus"]=False #该语句解决图像中的“-”负号的乱码问题
 
 
 class Knapsack:
@@ -30,6 +33,8 @@ class Knapsack:
         :param remaining_weight:  剩余承重
         :param current_value:  当前价值
         :return:    最大价值
+        time complexity: O(2^n * w), n为物品数量，w为最大承重
+        space complexity: O(n)
         """
         if remaining_weight is None:
             remaining_weight = self.max_weight
@@ -57,6 +62,8 @@ class Knapsack:
         """
         分支定界法求解最大价值
         :return:    最大价值
+        time complexity: O(n * w * log(n * w)), n为物品数量，w为最大承重
+        space complexity: O(n)
         """
 
 
@@ -104,6 +111,8 @@ class Knapsack:
         """
         贪心算法求解最大价值
         :return:    最大价值
+        time complexity: O(n * log(n)), n为物品数量
+        space complexity: O(n)
         """
         # 计算价值/重量比并进行排序
         value_weight_ratio = [(self.item_values[i] / self.item_weights[i], self.item_weights[i], self.item_values[i]) for i in range(self.num_items)]
@@ -199,18 +208,15 @@ class Knapsack:
         mutation_rate = 0.01
         return [gene if random.random() > mutation_rate else 1 - gene for gene in individual]
 
-
-
-
-
-    def run_genetic_algorithm(self, population_size, generations):
+    def run_genetic_algorithm(self, population_size = 10, generations = 5):
         """
              遗传算法
         :param population_size:     种群大小
         :param generations:         迭代次数
-        :return:         最佳个体及其适应度
+        :return:         最佳个体及其适应度，以及每一代最佳适应度
         """
         population = self.initialize_population(population_size)
+        best_fitness_per_generation = []  # 记录每一代的最佳适应度
 
         for generation in range(generations):
             new_population = []
@@ -222,16 +228,24 @@ class Knapsack:
                 new_population.append(child)
             population = new_population
 
-        # 找到最佳个体
-        best_individual = max(population, key=self.fitness)
-        return best_individual, self.fitness(best_individual)
+            # 找到当前一代的最佳个体及其适应度
+            best_individual = max(population, key=self.fitness)
+            best_fitness = self.fitness(best_individual)
+
+            # 将当前一代的最佳适应度添加到列表中
+            best_fitness_per_generation.append(best_fitness)
+
+        # 找到最终的最佳个体
+        final_best_individual = max(population, key=self.fitness)
+        # return final_best_individual, self.fitness(final_best_individual)
+        return self.fitness(final_best_individual)
 
 
 
 
 
 
-    def particle_swarm_optimizer(self, num_particles=10, max_iter=20):
+    def particle_swarm_optimizer(self, num_particles=10, max_iter=5):
         """
         粒子群算法
         :param num_particles:    粒子数量
@@ -244,6 +258,8 @@ class Knapsack:
         personal_best_fitness = np.array([self.fitness(p) for p in particles])
         global_best_position = personal_best_positions[np.argmax(personal_best_fitness, axis=0)]
         global_best_fitness = np.max(personal_best_fitness)
+
+        global_best_fitness_history = []
 
         for _ in range(max_iter):
             for i in range(num_particles):
@@ -264,12 +280,18 @@ class Knapsack:
                     personal_best_positions[i] = particles[i].copy()
 
                 # 更新全局最优解
+
                 if fitness > global_best_fitness:
                     global_best_fitness = fitness
                     global_best_position = particles[i].copy()
+
+            global_best_fitness_history.append(global_best_fitness)
+
         best_position_list = global_best_position.tolist()
 
-        return best_position_list, global_best_fitness
+
+        # return best_position_list, global_best_fitness
+        return global_best_fitness
 
 
 
@@ -288,7 +310,7 @@ if __name__ == '__main__':
     result_branch_bound = new_knapsack.branch_bound_max()
     result_greedy_max = new_knapsack.greedy_max()
     result_greedy_min = new_knapsack.greedy_min()
-    best_individual, best_fitness = new_knapsack.run_genetic_algorithm(10, 5)
+    best_individual, best_fitness= new_knapsack.run_genetic_algorithm(10, 5)
     print(f"GA最佳个体：{best_individual}")
     print(f"GA最佳个体适应度：{best_fitness}")
     print(f"回溯算法最优值：{result_backtrack}")
@@ -298,3 +320,20 @@ if __name__ == '__main__':
     best_solution_pso, best_fitness_pso = new_knapsack.particle_swarm_optimizer()
     print("PSO最优解:", best_solution_pso)
     print("PSO最佳适应度:", best_fitness_pso)
+    # print("PSO最佳适应度历史:", fitness_history_pso)
+
+
+    # plt.plot(fitness_history_pso)
+    # plt.xlabel('迭代次数')
+    # plt.ylabel('全局最佳适应度')
+    # plt.title('粒子群优化算法适应度变化')
+    # plt.grid(True)
+    #
+    # plt.plot(best_fitness_history)
+    # plt.xlabel('迭代次数')
+    # plt.ylabel('全局最佳适应度')
+    # plt.title('遗传算法适应度变化')
+    # plt.grid(True)
+    # plt.show()
+    #
+

@@ -62,7 +62,8 @@ class TSP:
         visited[0] = True
         tsp_util(0, visited, 1, 0, [0])
 
-        return final_path, min_cost
+        # return final_path, min_cost
+        return  float(min_cost)
 
 
 
@@ -108,7 +109,8 @@ class TSP:
         visited[0] = True
         branch_and_bound(0, 1, 0, visited,[0])
 
-        return final_path, min_cost
+        # return final_path, min_cost
+        return  float(min_cost)
 
     def greedy_solution(self):
         visited = [False] * self.n  # 记录城市是否被访问
@@ -138,7 +140,8 @@ class TSP:
         total_distance += self.graph[current_city][0]
         path.append(0)  # 回到起始城市
 
-        return path, total_distance
+        # return path, total_distance
+        return  float(total_distance)
 
 
 
@@ -206,7 +209,8 @@ class TSP:
         best_route = sorted(population, key=self.fitness, reverse=True)[0]
         best_route.append(0)
         best_cost = 1 / self.fitness(best_route)
-        return best_route, best_cost
+        # return best_route, best_cost
+        return  float(best_cost)
 
 
     def PSO(self, population_size=10, iterations=20):
@@ -248,7 +252,8 @@ class TSP:
         best_position.append(0)
 
 
-        return  best_position, 1/global_best_fitness
+        # return  best_position, 1/global_best_fitness
+        return  float(1/global_best_fitness)
 
 
 
